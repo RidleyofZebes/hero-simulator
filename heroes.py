@@ -63,7 +63,6 @@ bandit.armor = 17
 bandit.init = 15
 bandit.xp = 600
 
-
 monsterList = (goblin, slime, rat, bandit)
 
 # Basic Hero stats
@@ -82,6 +81,21 @@ hero.con = ""
 hero.int = ""
 hero.wis = ""
 hero.cha = ""
+
+# Functions?!
+def enemy_attack():
+	if randint(1, 20) > hero.armor: # random attack bonus.
+		mobattack = (randint(1, 20) + enemy.attack)
+		hero.hp = hero.hp - mobattack
+		print("The " + enemy.name + " strikes you for " + str(mobattack) + " damage, leaving you with " + str(hero.hp) + " health!")
+	else:
+		print("You narrowly avoid the " + enemy.name + "'s blow! ")
+		
+def hero_attack():
+	if hero.accuracy > enemy.armor:
+		attack = randint(1, hero.attack)
+		enemy.hp = enemy.hp - attack
+		print("You deal a mighty blow, causing " + str(attack) + " damage, leaving it with " + str(enemy.hp) + " health!")		
 
 # Begin game text and collect hero name
 game = True
@@ -117,22 +131,19 @@ while game:
 						print("you trade blows with the " + enemy.name + "!")
 						if randint(1, hero.init) < randint(1, enemy.init): # if the enemy is faster...
 							print("The " + enemy.name + " is quick on their feet!")
-							if randint(1, 20) > hero.armor: # enemy gets a random attack bonus. Need a stat to actually give bonus later.
-								mobattack = (randint(1, 20) + enemy.attack)
-								hero.hp = hero.hp - mobattack
-								print("The " + enemy.name + " strikes you for " + str(mobattack) + " damage, leaving you with " + str(hero.hp) + " health!")
-							else:
-								print("You narrowly avoid the " + enemy.name + "'s blow! ")
+							enemy_attack()
+							hero_attack()
 						else:
 							print("You have the upper hand!")
-						if hero.accuracy > enemy.armor:
-							attack = randint(1, hero.attack)
-							enemy.hp = enemy.hp - attack
-							print("You deal a mighty blow, causing " + str(attack) + " damage, leaving it with " + str(enemy.hp) + " health!")
-						
+							hero_attack()					
+							if enemy.hp <= 0: # If the enemy is dead...
+								print("The " + enemy.name + " is slain!")		
+							else:
+								enemy_attack()
 					elif action == "run":
 						then() # hero speed vs monster speed, if monster speed greater than hero speed, monster attack before flee.
 					elif action == "wait":
-						then() # monster action
+						print("After a moment of uncertainty, the " + enemy.name + " strikes!")
+						enemy_attack()
 
 	
