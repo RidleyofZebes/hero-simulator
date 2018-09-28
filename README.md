@@ -1,7 +1,7 @@
 # hero-simulator
 A simple dungeon crawl stype RPG written in python
 
-```
+
 changelog:
 v0.01alpha
     *Initial upload to GitHub
