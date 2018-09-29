@@ -3,6 +3,10 @@ A simple dungeon crawl stype RPG written in python
 
 
 ### changelog:
+##### v0.04alpha
+	  * Save feature is here!
+	  * Minor bugfixes and code cleanup
+	  
 ##### v0.03alpha
 	  * You can now die.
 	  * You have a score measured in number of monsters killed and XP earned
@@ -17,7 +21,6 @@ A simple dungeon crawl stype RPG written in python
 	 
 ### ToDo:
 - Short Term:
-  * Ability to save progress
   * Items & ability to heal
   * Leveling system
   * Replace hard-coded testing stats with D&D5e system
