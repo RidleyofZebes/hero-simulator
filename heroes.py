@@ -6,6 +6,7 @@
 
 #imports...
 import os
+import pickle
 import sys # <-- Literally only using this one for the sys.exit command. If it's ever deprecated, remove this.
 from random import randint
 
@@ -126,38 +127,65 @@ def enemy_death():
 	print("<<<DEV: resetting " + enemy.name + " to " + str(enemy.maxhp) + ".>>>") # This is just so I can make sure it's working.
 	enemy.hp = enemy.maxhp
 	
-#def Save_Game():
-	
-#def Load_Game():
+def Save_Game():
+	player = {'name':hero.name, 'hp':str(hero.hp), 'xp':str(hero.xp), 'kills':str(hero.killcount)}
+	with open('save/savegame.sav', 'wb') as f:
+		pickle.dump(player, f)
+		
+def Load_Game():
+	with open('save/savegame.sav', 'rb') as f:
+		player = pickle.load(f)
+	hero.name = player['name']
+	hero.hp = int(player['hp'])
+	hero.xp = int(player['xp'])
+	hero.killscount = int(player['kills'])
+		
+		
 
 # Begin game text and collect hero name
 game = True
 while game:
 	print("Welcome, Hero! Your destiny awaits.")
-	hero.name = input("What may we call you? ")
-	print("Then welcome, " + hero.name + ", may the Gods guide you in your trials.")
-	input("Press Enter to continue...")
-	os.system('cls')
+	returning = input("Have we met before? \n [yes, no]")
+	if returning == 'yes':
+		Load_Game()
+		print("Ah, " + hero.name + ", it's good to see you again!")
+	else:	
+		hero.name = input("What may we call you? ")
+		print("Then welcome, " + hero.name + ", may the Gods guide you in your trials.")
+		input("Press Enter to continue...")
+		os.system('cls')
 	# Begin the Adventure
-	vf = input("Venture forth, " + hero.name + "? ")
-	if vf == 'n':
-		print("Fare thee well, coward...")
-		# display scores here
+	vo = input("Venture onward, " + hero.name + "? \nOr do you seek rest? \n [quest, save, load, stop] \n") # I don't like the way this stacks here. Need to move it outside the quest loop, have options for going to town and saving.
+	if vo == 'stop':
+		print("Fare thee well, " + hero.name + "...")
+		print("In the end, you slew " + str(hero.killcount) + " monsters and earned " + str(hero.xp) + "xp.") # display scores here
+		sys.exit()
+	elif vo == 'save':
+		Save_Game()
+	elif vo == 'load':
+		Load_Game()
 	else:
 		quest = True
 		while quest:
-			e = (randint(0,10)) # picks a random number, 1 - 10
-			if e >= 5: # Numbers 0, 1, 2, 3, & 4 correspond to mobs in the monsterList. 5 and above, no monster. Adds suspense?
+			cf = randint(0,1)
+			if cf == 0: # coin flip, heads monster; tails, you're safe
 				print("The coast is clear... for now.")
-				vo = input("Venture onward, " + hero.name + "? ")
-				if vo == 'n':
+				vo = input("Venture onward, " + hero.name + "? \nOr do you seek rest? \n [quest, save, load, stop] \n") # I don't like the way this stacks here. Need to move it outside the quest loop, have options for going to town and saving.
+				if vo == 'stop':
 					print("Fare thee well, " + hero.name + "...")
-					print("In the end, you slew " + str(hero.killcount) + " monsters and earned " + str(hero.xp) + "xp.")		
+					print("In the end, you slew " + str(hero.killcount) + " monsters and earned " + str(hero.xp) + "xp.") # display scores here
 					sys.exit()
-			else:
-				enemy = monsterList[(e)] # get random enemy
-				print("A " + enemy.name + " has appeared!")
-				while enemy.hp > 0: # check if the enemy is still alive
+				elif vo == 'save':
+					Save_Game()
+				elif vo == 'load':
+					Load_Game()
+			elif cf == 1:
+				e = (randint(0,4)) # picks a random number, 0 - 4
+				combat = True
+				while combat:
+					enemy = monsterList[(e)] # get random enemy
+					print("A " + enemy.name + " has appeared!")
 					action = input("What will you do? \n [attack, run, wait] \n") # get the player input
 					if action == "attack":
 						print("You trade blows with the " + enemy.name + "!")
@@ -169,13 +197,13 @@ while game:
 							hero_attack()
 							if enemy.hp <= 0: # If the enemy is dead...
 								enemy_death()
-								break
+								combat = False
 						else:
 							print("You have the upper hand!")
 							hero_attack()					
 							if enemy.hp <= 0: # If the enemy is dead...
 								enemy_death()
-								break
+								combat = False
 							else:
 								enemy_attack()
 								if hero.hp <= 0:
@@ -184,9 +212,11 @@ while game:
 						if randint(1, hero.speed) < randint(1, enemy.speed): # hero speed vs monster speed, if monster speed greater than hero speed, monster attack before flee.
 							print("You turn to run, but you are not fast enough!")
 							enemy_attack()
+							if hero.hp <= 0:
+								hero_death()
 						else:
-							print("You turn to run, escaping nimbly into the darkness. \n Your body is uninjured, but your pride has taken a mortal blow.")
-							break
+							print("You turn to run, escaping nimbly into the darkness. \nYour body is uninjured, but your pride has taken a mortal blow.")
+							combat = False
 					elif action == "wait":
 						print("After a moment of uncertainty, the " + enemy.name + " strikes!")
 						enemy_attack()	
