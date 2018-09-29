@@ -68,7 +68,16 @@ bandit.armor = 17
 bandit.speed = 15
 bandit.xp = 600
 
-monsterList = (goblin, slime, rat, bandit)
+dragon = Monster()
+dragon.name = "Dragon"
+dragon.hp = 500
+dragon.maxhp = 500
+dragon.attack = 20
+dragon.armor = 20
+dragon.speed = 10
+dragon.xp = 10000
+
+monsterList = (goblin, slime, rat, bandit, dragon)
 
 # Basic Hero stats
 hero = Hero()
@@ -116,6 +125,10 @@ def enemy_death():
 	print("You gain " + str(enemy.xp) + "xp, for a total of " + str(hero.xp) + "xp!") # Then tell the player
 	print("<<<DEV: resetting " + enemy.name + " to " + str(enemy.maxhp) + ".>>>") # This is just so I can make sure it's working.
 	enemy.hp = enemy.maxhp
+	
+#def Save_Game():
+	
+#def Load_Game():
 
 # Begin game text and collect hero name
 game = True
@@ -125,21 +138,19 @@ while game:
 	print("Then welcome, " + hero.name + ", may the Gods guide you in your trials.")
 	input("Press Enter to continue...")
 	os.system('cls')
-# Begin the Adventure
+	# Begin the Adventure
 	vf = input("Venture forth, " + hero.name + "? ")
 	if vf == 'n':
-		game = False
 		print("Fare thee well, coward...")
 		# display scores here
 	else:
 		quest = True
 		while quest:
 			e = (randint(0,10)) # picks a random number, 1 - 10
-			if e >= 4: # Numbers 0, 1, 2, & 3 correspond to mobs in the monsterList. 4 and above, no monster. Adds suspense?
+			if e >= 5: # Numbers 0, 1, 2, 3, & 4 correspond to mobs in the monsterList. 5 and above, no monster. Adds suspense?
 				print("The coast is clear... for now.")
 				vo = input("Venture onward, " + hero.name + "? ")
 				if vo == 'n':
-					game = False
 					print("Fare thee well, " + hero.name + "...")
 					print("In the end, you slew " + str(hero.killcount) + " monsters and earned " + str(hero.xp) + "xp.")		
 					sys.exit()
@@ -167,13 +178,15 @@ while game:
 								break
 							else:
 								enemy_attack()
+								if hero.hp <= 0:
+									hero_death()
 					elif action == "run":
 						if randint(1, hero.speed) < randint(1, enemy.speed): # hero speed vs monster speed, if monster speed greater than hero speed, monster attack before flee.
 							print("You turn to run, but you are not fast enough!")
 							enemy_attack()
 						else:
-							print("You turn to run, escaping nimbly into the darkness. Your body is uninjured, but your pride has taken a mortal blow.")
-							quest = False
+							print("You turn to run, escaping nimbly into the darkness. \n Your body is uninjured, but your pride has taken a mortal blow.")
+							break
 					elif action == "wait":
 						print("After a moment of uncertainty, the " + enemy.name + " strikes!")
 						enemy_attack()	
