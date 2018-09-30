@@ -138,7 +138,7 @@ def Load_Game():
 	hero.name = player['name']
 	hero.hp = int(player['hp'])
 	hero.xp = int(player['xp'])
-	hero.killscount = int(player['kills'])
+	hero.killcount = int(player['kills'])
 		
 		
 

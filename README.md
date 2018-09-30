@@ -31,3 +31,12 @@ A simple dungeon crawl stype RPG written in python
   * Retro graphics?
   * Voice acting?
   * Story mode?
+  
+### Credits
+
+##### Design and Programming
+Douglas J. "RidleyofZebes" Honeycutt
+
+##### Playtesters:
+Serenity67
+Jillian Garrison
