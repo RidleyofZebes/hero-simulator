@@ -6,7 +6,6 @@ A simple dungeon crawl stype RPG written in python
 ##### v0.05-alpha
 	  * Rebalanced combat, better but still needs work.
 	  * Added chests and another monster(!) (Nothing in chests yet...)
-	  * Laid groundwork for what will hopefully be PyGame implementation
 	  * Misc code cleanup
 
 ##### v0.04-alpha
