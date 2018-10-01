@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------#
-# Hero Simulator v0.04-alpha                                              #
+# Hero Simulator v0.05-alpha                                              #
 # By Douglas J. Honeycutt                                                 #
 # https://withacact.us/ | https://github.com/RidleyofZebes/hero-simulator #
 #-------------------------------------------------------------------------#
@@ -8,7 +8,6 @@
 import os
 import pickle # <-- The thing that lets the save/load function work. Favorite module name.
 import sys # <-- Literally only using this one for the sys.exit command. If it's ever deprecated, remove this.
-import pygame # <-- Hope this works...
 from random import randint # <-- LulZ S000 RaNdUm
 
 # Define the Monster object and Hero object
@@ -223,7 +222,6 @@ def Load_Game():
 	hero.encounter = int(player['encounters'])
 	print("Ah, " + hero.name + ", it's good to see you again!")
 	
-
 # Begin game text and collect hero name
 print("Welcome, Hero! Your destiny awaits.")
 returning = input("Have we met before? \n [yes, no] \n")
