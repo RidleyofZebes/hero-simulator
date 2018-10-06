@@ -3,24 +3,24 @@ A simple dungeon crawl stype RPG written in python
 
 
 ### changelog:
-##### v0.05-alpha
+##### v0.05-dev
 	  * Rebalanced combat, better but still needs work.
 	  * Added chests and another monster(!) (Nothing in chests yet...)
 	  * Misc code cleanup
 
-##### v0.04-alpha
+##### v0.04-dev
 	  * Save feature is here!
 	  * Minor bugfixes and code cleanup
 	  
-##### v0.03-alpha
+##### v0.03-dev
 	  * You can now die.
 	  * You have a score measured in number of monsters killed and XP earned
 	  * Monsters health is reset after killing so you can continue killing monsters until you run out of health.
 	  
-##### v0.02-alpha
+##### v0.02-dev
 	  * Monsters can attack you now!
 	  
-##### v0.01-alpha
+##### v0.01-dev
       * Initial upload to GitHub
 	  * You can attack and kill monsters until you've killed each one once.
 	 
