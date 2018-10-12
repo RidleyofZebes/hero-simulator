@@ -47,6 +47,8 @@ A simple dungeon crawl stype RPG written in python
 
 Douglas J. "RidleyofZebes" Honeycutt
 
+**Pygame Text Input Module** by [Silas "Nearoo" Gyger](https://github.com/Nearoo)
+
 ##### Playtesters:
 
 Serenity67
