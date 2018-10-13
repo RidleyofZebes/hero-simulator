@@ -1,8 +1,14 @@
 # hero-simulator
-A simple dungeon crawl stype RPG written in python
+A simple dungeon crawl stype RPG written in python with pygame
 
 
 ### changelog:
+##### v0.1.1-dev
+	  * Added ability to take a rest to recover HP
+	  * Added detailed hero stats to screen between quests
+	  * Added hero and monster stats to combat screen
+	  * Fixed bug where end stats would not display on save and quit
+	  
 ##### v0.1.0-dev
 	  * Converted entire code over to pygame! Massive overhaul deserving of a version bump. May still contain bugs, but core game is working.
 	  
@@ -47,10 +53,10 @@ A simple dungeon crawl stype RPG written in python
 
 Douglas J. "RidleyofZebes" Honeycutt
 
-**Pygame Text Input Module** by [Silas "Nearoo" Gyger](https://github.com/Nearoo)
-
 ##### Playtesters:
 
 Serenity67
 
 Jillian Garrison
+
+**Pygame Text Input Module** by [Silas "Nearoo" Gyger](https://github.com/Nearoo)
