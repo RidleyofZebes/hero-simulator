@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------#
-# Hero Simulator v0.1.0-dev                                              #
+# Hero Simulator v0.1.1-dev                                              #
 # By Douglas J. Honeycutt                                                 #
 # https://withacact.us/ | https://github.com/RidleyofZebes/hero-simulator #
 #-------------------------------------------------------------------------#
@@ -11,7 +11,7 @@ import pygame
 import pygame_textinput
 from random import randint # <-- LulZ S000 RaNdUm
 
-version = "v0.1.0dev"
+version = "v0.1.1-dev"
 window_res = (800, 600)
 FPS = 30
 
@@ -189,6 +189,7 @@ hero.speed = 5
 hero.killcount = 0
 hero.encounter = 0
 hero.xp = 0
+hero.lvl = 1
 # D&D5e Hero Stats - don't know if they'll be used yet, but they're here for reference.
 # Eventually, if it would be simpler, I'd like to see everything done like this.
 # hero.str = ""
@@ -219,7 +220,6 @@ def game_menu():
 			mload = pyButton((265,50), "Load", 100)
 			mback = pyButton((400,50), "Back", 100)
 			mquit = pyButton((535,50), "Quit", 100)
-			msave, mload, mback, mquit
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				pos = pygame.mouse.get_pos()
 				if msave.collidepoint(pos):
@@ -243,15 +243,20 @@ def save_n_quit():
 			message("Would you like to save your progress?")
 			mYsave = pyButton((40,380), "Yes", 100)
 			mNsave = pyButton((175,380), "No", 100)
-			mYsave, mNsave
 			pygame.display.update()
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				pos = pygame.mouse.get_pos()
 				if mYsave.collidepoint(pos):
 					Save_Game()
+					cls()
+					message("Fare thee well, " + hero.name + "...\nIn the end, you slew " + str(hero.killcount) + " monsters and earned " + str(hero.xp) + "xp.\n\nClick anywhere to leave.") # display scores here	
+					pygame.display.update()
+					wait()
+					os._exit(1)
 				elif mNsave.collidepoint(pos):
 					cls()
-					message("Fare thee well, " + hero.name + "...\nIn the end, you slew " + str(hero.killcount) + " monsters and earned " + str(hero.xp) + "xp.") # display scores here	
+					message("Fare thee well, " + hero.name + "...\nIn the end, you slew " + str(hero.killcount) + " monsters and earned " + str(hero.xp) + "xp.\n\nClick anywhere to leave.") # display scores here	
+					pygame.display.update()
 					wait()
 					os._exit(1)
 
@@ -297,6 +302,11 @@ def enemy_death():
 	wait()
 	# print("<<<DEV: resetting " + enemy.name + " to " + str(enemy.maxhp) + ".>>>") # This is just so I can make sure it's working. !!!!Deprecated, comented out!!!!
 	enemy.hp = enemy.maxhp
+	
+def display_stats():
+	message(hero.name + ", lvl " + str(hero.lvl), 20, 10)
+	message(str(hero.hp) + "hp", 20, 45)
+	message(str(hero.xp) + "xp", 20, 80)	
 	
 def combat_encounter():
 	combat = True
@@ -403,11 +413,10 @@ def main():
 		for event in events:
 			if event.type == pygame.QUIT:
 				stopped = True		
-			cls()	
+			cls()			
 			message("Welcome, Hero! Your destiny awaits.\nHave we met before?")
 			loadYes = pyButton((40,380), "Yes", 100)
 			loadNo = pyButton((175,380), "No", 100)
-			loadYes, loadNo
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				pos = pygame.mouse.get_pos()
 				if loadYes.collidepoint(pos):
@@ -430,7 +439,6 @@ def main():
 							message("What may we call you?")
 							game_window.blit(prompt.get_surface(), (40, 380))
 							pygame.display.update()
-							clock.tick(FPS)
 							if prompt.update(nameGET):
 								hero.name = prompt.get_text()
 								cls()
@@ -448,6 +456,7 @@ def quest():
 		getQuest = pygame.event.get()
 		for event in getQuest:
 			cls()
+			display_stats()
 			message("Venture onward, " + hero.name + "? \nOr do you seek rest?")
 			bquest = pyButton((40,380), "Quest", 100)
 			btown = pyButton((175,380), "Town", 100)
@@ -457,7 +466,24 @@ def quest():
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				pos = pygame.mouse.get_pos()
 				if brest.collidepoint(pos):
-					test()
+					qlocation = "Wilderness" # This will soon match the terrain of the current quest.
+					cls()
+					message("You seek shelter in the " + qlocation + ", pulling together what little you can for comfort.")
+					pygame.display.update()
+					wait()
+					rest = randint(0,3)
+					if rest == 0:
+						cls()
+						message("To your pleasant surprise, you awake well rested and eager for the next adventure!")
+						pygame.display.update()
+						wait()
+						hero.hp = hero.hp + (randint(10,25))
+					elif rest > 0:
+						cls()
+						message("You find rest difficult in the " + qlocation + ", you barely shut your eyes before you sense you are being watched. It is time to move on.")
+						pygame.display.update()
+						wait()
+						hero.hp = hero.hp + (randint(0, 5))
 				elif bmenu.collidepoint(pos):
 					game_menu()
 				elif btown.collidepoint(pos):
