@@ -1,8 +1,7 @@
 
-save/savegame.sav
 @IGNORE/heroes_old.py
 @IGNORE/menubutton.psd
 @IGNORE/MockupTarget.png
 @IGNORE/test2.py
 *.pyc
-save/savegameBAK.sav
+*.sav
