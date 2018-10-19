@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------#
-# Hero Simulator v0.1.1-dev                                              #
+# Hero Simulator v0.1.2-dev                                               #
 # By Douglas J. Honeycutt                                                 #
 # https://withacact.us/ | https://github.com/RidleyofZebes/hero-simulator #
 #-------------------------------------------------------------------------#
@@ -10,8 +10,9 @@ import pickle # <-- The thing that lets the save/load function work. Favorite mo
 import pygame
 import pygame_textinput
 from random import randint # <-- LulZ S000 RaNdUm
+from natural.number import ordinal # <-- Makes the numbers look pretty - 1st, 2nd, 3rd, 4th...
 
-version = "v0.1.1-dev"
+version = "v0.1.2-dev"
 window_res = (800, 600)
 FPS = 30
 
@@ -45,7 +46,7 @@ font = pygame.font.Font('res/alkhemikal.ttf', 28)
 
 # Images
 menubtn = pygame.image.load('res/menu.png')
-monsterico = pygame.image.load('res/monster.png')
+#monsterico = pygame.image.load('res/monster.png')
 
 
 # PyGame Functions
@@ -53,9 +54,27 @@ monsterico = pygame.image.load('res/monster.png')
 def cls():
 	game_window.fill(black)
 	pygame.draw.rect(game_window, white, (25,300,750,275), 0)
-	pygame.draw.rect(game_window, black, (29,304,742,267), 0)	
+	pygame.draw.rect(game_window, black, (29,304,742,267), 0)
+
+def mb_clear():
+	game_window.fill(black)
+	pygame.draw.rect(game_window, white, (25,300,750,275), 0)
+	pygame.draw.rect(game_window, black, (29,304,742,267), 0)
 
 def pyButton(butnPos, butnText, *butnWid): # Gets button X,Y and button label
+		buttonPadding = 25 # Set padding between button text and border
+		label = font.render(butnText, 0, white) # Renders button label
+		butnDimsX, butnDimsY = label.get_size() # Sends button label dimensions to A,B variables
+		if not butnWid:
+			game_window.blit(label, ((butnPos[0] + (buttonPadding/2)),(butnPos[1] + (buttonPadding/2)))) # Outputs the button with default padding to the screen
+			butnSize = (butnPos[0],butnPos[1],(butnDimsX + buttonPadding),(butnDimsY + (buttonPadding*0.8)))
+		else:
+			game_window.blit(label, ((((butnPos[0] + ((butnWid[0]+buttonPadding)/2)))-(butnDimsX/2)), (butnPos[1] + (buttonPadding/2)))) # Outputs the button with padding and centered text to the screen
+			butnSize = (butnPos[0],butnPos[1],(butnWid[0] + buttonPadding),(butnDimsY + (buttonPadding*0.8)))
+		pygame.draw.rect(game_window, white, butnSize, 4)
+		return pygame.Rect(butnSize)
+		
+def pyNameplate(butnPos, butnText, *butnWid): # Gets button X,Y and button label
 		buttonPadding = 25 # Set padding between button text and border
 		label = font.render(butnText, 0, white) # Renders button label
 		butnDimsX, butnDimsY = label.get_size() # Sends button label dimensions to A,B variables
@@ -105,7 +124,7 @@ class Monster:
 	
 class Hero:
 	name = ""
-	level = ""
+	level = 0
 	hp = ""
 	xp = 0
 	killcount = 0
@@ -114,6 +133,9 @@ class Hero:
 	attack = ""
 	armor = ""
 	speed = ""
+	
+	# def levelup():
+		# if xp 
 	
 # Define a few sample monsters
 goblin = Monster()
@@ -144,7 +166,7 @@ rat.attack = 2
 rat.accuracy = 5
 rat.armor = 5
 rat.speed = 10
-rat.xp = 150
+rat.xp = 50
 
 bandit = Monster()
 bandit.name = "Bandit"
@@ -182,27 +204,30 @@ monsterList = (goblin, slime, rat, bandit, dragon)
 hero = Hero()
 hero.name = "Nameless"
 hero.hp = 100
+hero.maxhp = 100
+hero.temphp = 0
 hero.accuracy = 5
 hero.attack = 5
 hero.armor = 12
 hero.speed = 5
 hero.killcount = 0
 hero.encounter = 0
+hero.gametime = 0
 hero.xp = 0
 hero.lvl = 1
+hero.gold = 0
 # D&D5e Hero Stats - don't know if they'll be used yet, but they're here for reference.
 # Eventually, if it would be simpler, I'd like to see everything done like this.
-# hero.str = ""
-# hero.dex = ""
-# hero.con = ""
-# hero.int = ""
-# hero.wis = ""
-# hero.cha = ""
-	
-	
+# hero.str = 0
+# hero.dex = 0
+# hero.con = 0
+# hero.wis = 0
+# hero.cha = 0
+# hero.lck = 0
 
+	
 # Game Logic Functions
-prompt = pygame_textinput.TextInput('', 'res/alkhemikal.ttf', 28, False, white, white)
+prompt = pygame_textinput.TextInput('', 'res/alkhemikal.ttf', 28, False, white, white, 1000, 100)
 
 def test():
 	message("<<<<TESTING FOR DEV PURPOSES PLEASE IGNORE>>>>", 20, 20)
@@ -262,7 +287,7 @@ def save_n_quit():
 
 def enemy_attack():
 	cls()
-	if (randint(1, 20) + enemy.accuracy) > hero.armor: # 1d20 + enemy accuracy vs. hero's armor class
+	if (randint(1, 20) + enemy.accuracy) > (hero.armor * hero.lvl): # 1d20 + enemy accuracy vs. hero's armor class
 		mobattack = (randint(1, 10) + enemy.attack) # 1d10 + enemy attack bonus
 		hero.hp = hero.hp - mobattack
 		message("The " + enemy.name + " strikes you for " + str(mobattack) + " damage, leaving you with " + str(hero.hp) + " health!")
@@ -275,8 +300,8 @@ def enemy_attack():
 		
 def hero_attack():
 	cls()
-	if (randint(1, 20) + hero.accuracy) > enemy.armor:
-		attack = (randint(1, 10) + hero.attack)
+	if ((randint(1, 20) + hero.accuracy) * hero.lvl) > enemy.armor:
+		attack = ((randint(1, 10) + hero.attack) * hero.lvl)
 		enemy.hp = enemy.hp - attack
 		message("You deal a mighty blow, causing " + str(attack) + " damage, leaving it with " + str(enemy.hp) + " health!")
 		pygame.display.update()
@@ -295,18 +320,58 @@ def hero_death():
 	
 def enemy_death():	
 	hero.xp = hero.xp + enemy.xp # Grant hero experience points
+	herolevelupcheck()
 	hero.killcount = hero.killcount + 1 # Add up the kill count
 	cls()
 	message("The " + enemy.name + " is slain!\nYou gain " + str(enemy.xp) + "xp, for a total of " + str(hero.xp) + "xp!") # Then tell the player
 	pygame.display.update()
 	wait()
-	# print("<<<DEV: resetting " + enemy.name + " to " + str(enemy.maxhp) + ".>>>") # This is just so I can make sure it's working. !!!!Deprecated, comented out!!!!
 	enemy.hp = enemy.maxhp
+	
+def time_tick():
+	# Game Calendar - May be more useful later?
+	qcalen = ["Jannus","Quintest","Everborn","Sprynthane","Tavyris","Midsummers","Entmordaughn","Autumnus","Harvestone","Fallowfield","Winterholm"]
+	qweekd = ["Sunstone", "Mondred", "Tuendala", "Wednyght", "Threasdon", "Frindaal", "Satterdawn"]
+	qclock = ["12:00am", "1:00am", "2:00am", "3:00am", "4:00am", "5:00am", "6:00am", "7:00am", "8:00am", "9:00am", "10:00am", "11:00am", "12:00pm", "1:00pm", "2:00pm", "3:00pm", "4:00pm", "5:00pm", "6:00pm", "7:00pm", "8:00pm", "9:00pm", "10:00pm", "11:00pm"]
+	year = 1670
+	mtod = 0
+	mnth = 5
+	days = 0
+	hour = 7
+
+	hour = hour + hero.gametime
+	
+	while hour >= len(qclock):
+		hour = hour - len(qclock)
+		days = days + 1
+		mtod = mtod + 1	
+	
+	if days >= len(qweekd):
+		days = days - len(qweekd)
+	
+	if mtod >= 31:
+		mtod = 0
+		mnth = mnth + 1
+				
+	if mnth >= len(qcalen):
+		mnth = mnth - len(qcalen)
+		year = year + 1
+	
+	global gamedate
+	gamedate = (qweekd[days] + ", " + qcalen[mnth] + " " + ordinal(str(mtod + 1)) + ", " + str(year) + ", " + qclock[hour])
+	return gamedate
+	
+def herolevelupcheck():
+	nextlevel = 500 * (hero.lvl ** 2) - (500 * hero.lvl)
+	if hero.xp >= nextlevel:
+		hero.lvl = hero.lvl + 1
 	
 def display_stats():
 	message(hero.name + ", lvl " + str(hero.lvl), 20, 10)
 	message(str(hero.hp) + "hp", 20, 45)
-	message(str(hero.xp) + "xp", 20, 80)	
+	message(str(hero.xp) + "xp", 20, 80)
+	time_tick()
+	message(gamedate, 20, 115)
 	
 def combat_encounter():
 	combat = True
@@ -329,10 +394,14 @@ def combat_encounter():
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				pos = pygame.mouse.get_pos()
 				if cattack.collidepoint(pos):
+					cls()
 					message("You trade blows with the " + enemy.name + "!")
 					pygame.display.update()
-					if randint(1, hero.speed) < randint(1, enemy.speed): # if the enemy is faster...
+					wait()
+					if randint(1, (hero.speed * hero.lvl)) < randint(1, enemy.speed): # if the enemy is faster...\
 						message("\nThe " + enemy.name + " is quick on their feet!")
+						pygame.display.update()
+						wait()
 						enemy_attack()
 						if hero.hp <= 0:
 							hero_death()
@@ -342,6 +411,8 @@ def combat_encounter():
 							combat = False
 					else:
 						message("\nYou have the upper hand!")
+						pygame.display.update()
+						wait()
 						hero_attack()					
 						if enemy.hp <= 0: # If the enemy is dead...
 							enemy_death()
@@ -371,7 +442,7 @@ def combat_encounter():
 							hero_death()
 					else:
 						cls()
-						message("You turn to run, escaping nimbly into the darkness. \nYour body is uninjured, but your pride has taken a mortal blow.")
+						message("You turn to run, escaping nimbly into the darkness. \nYour body is uninjured, but you feel your pride has taken a mortal blow...")
 						pygame.display.update()
 						wait()
 						combat = False
@@ -385,7 +456,7 @@ def wait():
 				holding = False
 	
 def Save_Game():
-	player = {'name':hero.name, 'hp':str(hero.hp), 'xp':str(hero.xp), 'kills':str(hero.killcount), 'encounters':str(hero.encounter)}
+	player = {'name':hero.name, 'hp':str(hero.hp), 'xp':str(hero.xp), 'gold':str(hero.gold), 'kills':str(hero.killcount), 'encounters':str(hero.encounter), 'gametime':str(hero.gametime)}
 	with open('save/savegame.sav', 'wb') as f:
 		pickle.dump(player, f)
 	message("Game saved.", 20, 20)
@@ -397,11 +468,14 @@ def Load_Game():
 	hero.name = player['name']
 	hero.hp = int(player['hp'])
 	hero.xp = int(player['xp'])
+	hero.gold = int(player['gold'])
 	hero.killcount = int(player['kills'])
 	hero.encounter = int(player['encounters'])
+	hero.gametime = int(player['gametime'])
 	cls()
 	message("Ah, " + hero.name + ", it's good to see you again!")
 	pygame.display.update()
+	herolevelupcheck()
 	
 	
 	
@@ -417,18 +491,14 @@ def main():
 			message("Welcome, Hero! Your destiny awaits.\nHave we met before?")
 			loadYes = pyButton((40,380), "Yes", 100)
 			loadNo = pyButton((175,380), "No", 100)
+			pygame.display.update()
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				pos = pygame.mouse.get_pos()
 				if loadYes.collidepoint(pos):
 					cls()					
-					gamestart = True
-					while gamestart:
-						cls()
-						Load_Game()
-						loadWait = pygame.event.get()
-						for event in loadWait:
-							if event.type == pygame.MOUSEBUTTONDOWN:
-								quest()
+					Load_Game()
+					wait()
+					quest()
 				elif loadNo.collidepoint(pos):
 					cls()						
 					getName = True					
@@ -439,6 +509,7 @@ def main():
 							message("What may we call you?")
 							game_window.blit(prompt.get_surface(), (40, 380))
 							pygame.display.update()
+							clock.tick(FPS)
 							if prompt.update(nameGET):
 								hero.name = prompt.get_text()
 								cls()
@@ -446,8 +517,6 @@ def main():
 								pygame.display.update()
 								wait()
 								quest()
-		pygame.display.update()
-		clock.tick(FPS)
 	pygame.quit()
 
 def quest():
@@ -461,34 +530,58 @@ def quest():
 			bquest = pyButton((40,380), "Quest", 100)
 			btown = pyButton((175,380), "Town", 100)
 			brest = pyButton((310,380), "Rest", 100)
+			bwait = pyButton((500,380), "Wait", 100)
 			bmenu = game_window.blit(menubtn,(730,20))
 			pygame.display.update()
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				pos = pygame.mouse.get_pos()
 				if brest.collidepoint(pos):
-					qlocation = "Wilderness" # This will soon match the terrain of the current quest.
-					cls()
-					message("You seek shelter in the " + qlocation + ", pulling together what little you can for comfort.")
-					pygame.display.update()
-					wait()
-					rest = randint(0,3)
-					if rest == 0:
+					if hero.hp < (hero.maxhp + hero.temphp):
+						qlocation = "Wilderness" # This will soon match the terrain of the current quest.
 						cls()
-						message("To your pleasant surprise, you awake well rested and eager for the next adventure!")
+						message("You seek shelter in the " + qlocation + ", pulling together what little you can for comfort.")
 						pygame.display.update()
 						wait()
-						hero.hp = hero.hp + (randint(10,25))
-					elif rest > 0:
+						rest = randint(0,3)
+						if rest == 0:
+							cls()
+							message("To your pleasant surprise, you awake well rested and eager for the next adventure!")
+							pygame.display.update()
+							wait()
+							hero.gametime = hero.gametime + 8
+							hero.hp = hero.hp + (randint(10,25))
+							if hero.hp > hero.maxhp:
+								hero.hp = hero.maxhp
+						elif rest == 1:
+							cls()
+							message("Feeling secure in your makeshift shelter you allow yourself to drift to sleep, completely unaware of the assailant approaching your position!")
+							hero.gametime = hero.gametime + 1
+							pygame.display.update()
+							wait()
+							combat_encounter()
+						elif rest > 1:
+							cls()
+							message("You find rest difficult in the " + qlocation + "; you barely shut your eyes before you sense you are being watched. It is time to move on.")
+							pygame.display.update()
+							wait()
+							hero.gametime = hero.gametime + 1
+							hero.hp = hero.hp + (randint(0, 5))
+							if hero.hp > hero.maxhp:
+								hero.hp = hero.maxhp
+					else:
 						cls()
-						message("You find rest difficult in the " + qlocation + ", you barely shut your eyes before you sense you are being watched. It is time to move on.")
+						message("You already feel fit as a fiddle! To rest now would be a waste of time.")
 						pygame.display.update()
 						wait()
-						hero.hp = hero.hp + (randint(0, 5))
 				elif bmenu.collidepoint(pos):
-					game_menu()
+					game_menu()				
+				elif bwait.collidepoint(pos):
+					hero.gametime = hero.gametime + 1
+					pygame.display.update()
 				elif btown.collidepoint(pos):
 					test()
 				elif bquest.collidepoint(pos):
+					hero.gametime = hero.gametime + 1
 					cf = randint(0,2) # Determine the type of encounter. As it stands, 0 = nothing, 1 = monster, 2 = chest, 3 = trap
 					if cf == 0: # Nothing encountered
 						cls()
@@ -518,15 +611,25 @@ def quest():
 								if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 									pos = pygame.mouse.get_pos()
 									if copen.collidepoint(pos):
-										m = randint(0,1)
+										m = randint(0,2)
 										if m == 0:
 											cls()
-											message("You ease back the lid of the chest. Inside you see the glint and glitter of a mound of unimaginable loot!\nYou gain tememndous experience.")
-											hero.xp = hero.xp + 2500
-											test() #chest
+											message("You ease back the lid of the chest. Your eyes are immediately dazzled by the glint and glitter of a mound of unimaginable loot!")
+											pygame.display.update()
+											hero.xp = hero.xp + 1000
+											herolevelupcheck()
+											hero.gold = hero.gold + 1000
 											wait()
 											cquest = False
-										if m == 1: # MIMIC!!!
+										if m == 1:
+											cls()
+											message("Knocking aside the rust-eaten lock, you swing back the lid of the old chest. The heavy, old lid snaps off its hinges under it's own weight. Inside you find naught but cobwebs and dust.\nThe chest is empty.")
+											pygame.display.update()
+											hero.xp = hero.xp + 50
+											herolevelupcheck()
+											wait()
+											cquest = False
+										if m == 2: # MIMIC!!!
 											enemy = mimic
 											cls()
 											message("As you attempt to pull back the lid of the chest, you feel a sticky secretion covering your hand. You pull back in disgust just as the lid opens of its own accord, revealing a full set of teeth in a gaping, slimy maw!\nA " + enemy.name + " has appeared!")
@@ -543,15 +646,15 @@ def quest():
 										cquest = False
 									elif bmenu.collidepoint(pos):
 										game_menu()
-					elif cf == 3: # Trap encounter! [NOT USED AT THIS TIME]
-						print("You see a large, iron-bound chest before you. What will you do?")
-						cc = input("[open, leave, menu]")
-						if cc == 'open':
-							m = randint(0,1)
-						elif cc == 'leave':
-							combat = False
-						elif cc == 'menu':
-							game_menu()
+					# elif cf == 3: # Trap encounter! [NOT USED AT THIS TIME]
+						# print("You see a large, iron-bound chest before you. What will you do?")
+						# cc = input("[open, leave, menu]")
+						# if cc == 'open':
+							# m = randint(0,1)
+						# elif cc == 'leave':
+							# combat = False
+						# elif cc == 'menu':
+							# game_menu()
 	
 	
 # Launches the Game
