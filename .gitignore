@@ -5,3 +5,9 @@
 @IGNORE/test2.py
 *.pyc
 *.sav
+@IGNORE/clocktest.py
+@IGNORE/hero-simulator v0.1.1-dev.7z
+@IGNORE/levels 1-100.txt
+@IGNORE/leveltest.py
+@IGNORE/setup.py
+@IGNORE/statgentest.py
